@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Title</title>
+	<h1>Thank you for purchase!</h1>
+</head>
+<body>
+<script runat="server">
+
+    Platform.Load("Core", "1.1.1");
+
+    var data = {
+        ContactKey: "0x00000001",
+        emailAddress: Request.GetQueryStringParameter("cartEmail"),
+        firstName: Request.GetQueryStringParameter("cartFirstName"),
+        mobile: Request.GetQueryStringParameter("cartPhone"),
+        locale: "pl-pl"
+    }
+
+    var setup = {
+        authBaseURI: "https://mc64hfdnlnkg426l50h2vbjryj0q.auth.marketingcloudapis.com/",
+        restBaseURI: "https://mc64hfdnlnkg426l50h2vbjryj0q.rest.marketingcloudapis.com/",
+        clientId: "9okl3bw3fmz7naflts9okebg",
+        clientSecret: "uK4H2i9ueYkPTkEbNZ3QT9GX",
+        eventDefinitionKey: "APIEvent-094d9bcc-0be4-93be-bdd3-5cf6ecc68ab3"
+    }
+
+    var config = {
+        url : setup.authBaseURI + "v2/token",
+        contentType : "application/json",
+        payload : {
+            "client_id": setup.clientId,
+            "client_secret": setup.clientSecret,
+            "grant_type": "client_credentials",
+            "account_id":"510003115"
+        }
+    };
+
+    Write('test')
+
+    var req = new Script.Util.HttpRequest(config.url);
+    req.emptyContentHandling = 0;
+    req.retries = 2;
+    req.continueOnError = true;
+    req.contentType = "application/json"
+    req.method = "POST";
+    req.postData = Stringify(config.payload);
+
+    var resp = req.send();
+    var resultStatusStr = String(resp.statusCode);
+    var resultContentStr = String(resp.content);
+
+    var resultContentJSON = Platform.Function.ParseJSON(resultContentStr);
+    var token = resultContentJSON.access_token;
+    Platform.Response.Write("token:<br/ >"+ token +"");
+    Platform.Response.Write("Content:<br/ >"+resp.content +"");
+    Platform.Response.Write("Return header: "+resp.headers["returnHeader"] +"");
+
+    if (token) {
+        Write('have a token')
+    }
+
+</script>
+
+</body>
+</html>
